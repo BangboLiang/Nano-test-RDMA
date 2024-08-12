@@ -12,8 +12,8 @@ It can test the performance in nano seconds.
 
 
 
-Table of Contents
-===============================================================================
+## Table of Contents
+
 
 1. Overview
 2. Installation
@@ -22,9 +22,9 @@ Table of Contents
 5. Running Tests
 6. Known Issues
 
+---
+## 1. Overview
 
-1. Overview
-===============================================================================
 This is a collection of tests written over uverbs intended for use as a
 performance micro-benchmark. The tests may be used for HW or SW tuning
 as well as for functional testing.
@@ -41,9 +41,9 @@ Please post results/observations to the openib-general mailing list.
 See "Contact Us" at http://openib.org/mailman/listinfo/openib-general and
 http://www.openib.org.
 
+---
+## 2. Installation
 
-2. Installation
-===============================================================================
 -After cloning the repository a perftest directory should appear in your current
  directory
 
@@ -64,9 +64,9 @@ git clone <URL>, In our situation its --> git clone https://github.com/linux-rdm
 
 -All of the tests will appear in the  perftest directory and in the install directory.
 
+---
+## 3. Notes on Testing Methodology
 
-3. Notes on Testing Methodology
-===============================================================================
 - The benchmarks use the CPU cycle counter to get time stamps without context
   switch.  Some CPU architectures (e.g., Intel's 80486 or older PPC) do not
   have such capability.
@@ -109,9 +109,9 @@ git clone <URL>, In our situation its --> git clone https://github.com/linux-rdm
 
 Architectures tested:	i686, x86_64, ia64
 
+---
+## 4. Benchmarks Description
 
-4. Benchmarks Description
-===============================================================================
 
 The benchmarks generate a synthetic stream of operations, which is very useful
 for hardware and software benchmarking and analysis.
@@ -132,10 +132,8 @@ Raw Ethernet interface benchmarks:
 raw_ethernet_send_lat  latency test over raw Ethernet interface
 raw_ethernet_send_bw   bandwidth test over raw Ethernet interface
 
-
-5. Running Tests
-===============================================================================
-
+---
+## 5. Running Tests
 Prerequisites:
 	kernel 2.6
 	(kernel module) matches libibverbs
@@ -318,10 +316,10 @@ Special feature detailed explanation in tests:
           application with --data_enc_key_app_path <PATH> and the kek file should be
           provided with --kek_path <PATH>
 
-        4) This feature supported only on RC qp type, and on ib_write_bw, ib_read_bw,
+        2) This feature supported only on RC qp type, and on ib_write_bw, ib_read_bw,
            ib_send_bw, ib_read_lat, ib_send_lat.
 
-        5) You should load the kek and credentials you want to the device in the following way:
+        3) You should load the kek and credentials you want to the device in the following way:
           #sudo mlxreg -d <pci address> --reg_name CRYPTO_OPERATIONAL --set "credential[0]
           =0x00000000,credential[1]=0x10000000,credential[2]=0x10000000,
           credential[3]=0x10000000,credential[4]=0x10000000,credential[5]=0x10000000
@@ -330,9 +328,9 @@ Special feature detailed explanation in tests:
 
 
 
+---
+## 6. Known Issues
 
-6. Known Issues
-===============================================================================
 
  1. Multicast support in ib_send_lat and in ib_send_bw is not stable.
     The benchmark program may hang or exhibit other unexpected behavior.
