@@ -1,17 +1,20 @@
 # Nano-test RDMA
 
-This repo is created based on OFED Performance Tests.
-It can test the performance in nano seconds.
+This repo is created based on OFED Performance Tests.  
+It can test the performance in nano seconds.  
 
+  
+  
 
 	     Open Fabrics Enterprise Distribution (OFED)
                 	Performance Tests README
 
 
 
-===============================================================================
+
 Table of Contents
 ===============================================================================
+
 1. Overview
 2. Installation
 3. Notes on Testing Methodology
@@ -19,7 +22,7 @@ Table of Contents
 5. Running Tests
 6. Known Issues
 
-===============================================================================
+
 1. Overview
 ===============================================================================
 This is a collection of tests written over uverbs intended for use as a
@@ -38,7 +41,7 @@ Please post results/observations to the openib-general mailing list.
 See "Contact Us" at http://openib.org/mailman/listinfo/openib-general and
 http://www.openib.org.
 
-===============================================================================
+
 2. Installation
 ===============================================================================
 -After cloning the repository a perftest directory should appear in your current
@@ -60,7 +63,8 @@ git clone <URL>, In our situation its --> git clone https://github.com/linux-rdm
 -make install
 
 -All of the tests will appear in the  perftest directory and in the install directory.
-===============================================================================
+
+
 3. Notes on Testing Methodology
 ===============================================================================
 - The benchmarks use the CPU cycle counter to get time stamps without context
@@ -105,7 +109,7 @@ git clone <URL>, In our situation its --> git clone https://github.com/linux-rdm
 
 Architectures tested:	i686, x86_64, ia64
 
-===============================================================================
+
 4. Benchmarks Description
 ===============================================================================
 
@@ -128,7 +132,7 @@ Raw Ethernet interface benchmarks:
 raw_ethernet_send_lat  latency test over raw Ethernet interface
 raw_ethernet_send_bw   bandwidth test over raw Ethernet interface
 
-===============================================================================
+
 5. Running Tests
 ===============================================================================
 
@@ -326,7 +330,7 @@ Special feature detailed explanation in tests:
 
 
 
-===============================================================================
+
 6. Known Issues
 ===============================================================================
 
