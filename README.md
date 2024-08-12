@@ -3,7 +3,14 @@
 This repo is created based on OFED Performance Tests.  
 It can test the performance in nano seconds.  
 
-  
+You may need to install this package in Ubuntu before start:
+```bash
+sudo apt install libpci-dev
+```
+
+Here is the original OFED Perf Test README:
+
+---
   
 
 	     Open Fabrics Enterprise Distribution (OFED)
