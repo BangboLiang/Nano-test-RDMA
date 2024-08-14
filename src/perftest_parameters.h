@@ -616,6 +616,9 @@ struct perftest_parameters {
 	char				*source_ip;
 	int 				has_source_ip;
 	int 			ah_allocated;
+	/*For merge print, add the cell here*/
+	int					TmpPrint;
+	int 				PrintCell;
 };
 
 struct report_options {

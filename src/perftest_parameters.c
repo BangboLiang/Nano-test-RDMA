@@ -29,6 +29,11 @@ static const char *qp_state[] = {"OFF","ON"};
 static const char *exchange_state[] = {"Ethernet","rdma_cm"};
 static const char *atomicTypesStr[] = {"CMP_AND_SWAP","FETCH_AND_ADD"};
 
+//For merge printf.
+struct bw_report_data PrintDatas[10000];
+
+
+
 /******************************************************************************
  * parse_mac_from_str.
  *
@@ -421,7 +426,8 @@ static void usage(const char *argv0, VerbType verb, TestType tst, int connection
 
 	/*Long flags*/
 	putchar('\n');
-
+	printf("      --print_cell");
+	printf(" Print how many test result once, only in --run_infinitely mode.\n");
 	printf("      --out_json ");
 	printf(" Save the report in a json file\n");
 
@@ -752,6 +758,8 @@ static void init_perftest_params(struct perftest_parameters *user_param)
 	user_param->log_dci_streams = 0;
 	user_param->log_active_dci_streams = 0;
 	user_param->output		= -1;
+	//The curr print num.
+	user_param->TmpPrint	= 0;
 #ifdef HAVE_CUDA
 	user_param->use_cuda		= 0;
 	user_param->cuda_device_id		= 0;
@@ -2134,6 +2142,8 @@ int parser(struct perftest_parameters *user_param,char *argv[], int argc)
 	static int flow_label_flag = 0;
 	static int retry_count_flag = 0;
 	static int dont_xchg_versions_flag = 0;
+	//for print cell
+	static int print_cell_flag = 0;
 #ifdef HAVE_CUDA
 	static int use_cuda_flag = 0;
 	static int use_cuda_bus_id_flag = 0;
@@ -2286,6 +2296,7 @@ int parser(struct perftest_parameters *user_param,char *argv[], int argc)
 			{ .name = "flow_label",		.has_arg = 1, .flag = &flow_label_flag, .val = 1},
 			{ .name = "retry_count",	.has_arg = 1, .flag = &retry_count_flag, .val = 1},
 			{ .name = "dont_xchg_versions",	.has_arg = 0, .flag = &dont_xchg_versions_flag, .val = 1},
+			{ .name = "print_cell",		.has_arg = 1, .flag = &print_cell_flag, .val = 1 },
 			#ifdef HAVE_CUDA
 			{ .name = "use_cuda",		.has_arg = 1, .flag = &use_cuda_flag, .val = 1},
 			{ .name = "use_cuda_bus_id",	.has_arg = 1, .flag = &use_cuda_bus_id_flag, .val = 1},
@@ -2608,6 +2619,10 @@ int parser(struct perftest_parameters *user_param,char *argv[], int argc)
 					CHECK_VALUE_NON_NEGATIVE(user_param->burst_size,int,"Burst size",not_int_ptr);
 					burst_size_flag = 0;
 				}
+				if (print_cell_flag) {	//for print cell
+					user_param->PrintCell = strtol(optarg, NULL, 0);
+					print_cell_flag = 0;
+				}			
 				if (typical_pkt_size_flag) {
 					CHECK_VALUE_IN_RANGE(user_param->typical_pkt_size,int,0,0xFFFF,"Typical pkt size",not_int_ptr);
 					typical_pkt_size_flag = 0;
@@ -2874,7 +2889,6 @@ int parser(struct perftest_parameters *user_param,char *argv[], int argc)
 	if (run_inf_flag) {
 		user_param->test_method = RUN_INFINITELY;
 	}
-
 	if (srq_flag) {
 		user_param->use_srq = 1;
 	}
@@ -3334,7 +3348,10 @@ void print_report_bw (struct perftest_parameters *user_param, struct bw_report_d
 	int opt_posted = 0;
 	int run_inf_bi_factor;
 	int num_of_qps = user_param->num_of_qps;
+	int curr_print_num = user_param->TmpPrint;
+	//printf("curr_print_num is %d\n", curr_print_num);
 	long format_factor;
+	
 	uint64_t num_of_calculated_iters = user_param->iters;
 
 	int free_my_bw_rep = 0;
@@ -3403,27 +3420,45 @@ void print_report_bw (struct perftest_parameters *user_param, struct bw_report_d
 	peak_up = !(user_param->noPeak)*(cycles_t)tsize*(cycles_t)cycles_to_units;
 	peak_down = (cycles_t)opt_delta * format_factor;
 
-	if (my_bw_rep == NULL) {
-		free_my_bw_rep = 1;
-		ALLOCATE(my_bw_rep , struct bw_report_data , 1);
-		memset(my_bw_rep, 0, sizeof(struct bw_report_data));
-	}
+	// if (my_bw_rep == NULL) {
+	// 	free_my_bw_rep = 1;
+	// 	ALLOCATE(my_bw_rep , struct bw_report_data , 1);
+	// 	memset(my_bw_rep, 0, sizeof(struct bw_report_data));
+	// }
 
-	my_bw_rep->size = (unsigned long)user_param->size;
-	my_bw_rep->iters = num_of_calculated_iters;
-	my_bw_rep->bw_peak = (double)peak_up/peak_down;
-	my_bw_rep->bw_avg = bw_avg;
-	my_bw_rep->msgRate_avg = msgRate_avg;
-	my_bw_rep->bw_avg_p1 = bw_avg_p1;
-	my_bw_rep->msgRate_avg_p1 = msgRate_avg_p1;
-	my_bw_rep->bw_avg_p2 = bw_avg_p2;
-	my_bw_rep->msgRate_avg_p2 = msgRate_avg_p2;
-	my_bw_rep->sl = user_param->sl;
+	// my_bw_rep->size = (unsigned long)user_param->size;
+	// my_bw_rep->iters = num_of_calculated_iters;
+	// my_bw_rep->bw_peak = (double)peak_up/peak_down;
+	// my_bw_rep->bw_avg = bw_avg;
+	// my_bw_rep->msgRate_avg = msgRate_avg;
+	// my_bw_rep->bw_avg_p1 = bw_avg_p1;
+	// my_bw_rep->msgRate_avg_p1 = msgRate_avg_p1;
+	// my_bw_rep->bw_avg_p2 = bw_avg_p2;
+	// my_bw_rep->msgRate_avg_p2 = msgRate_avg_p2;
+	// my_bw_rep->sl = user_param->sl;
+	PrintDatas[curr_print_num].size = (unsigned long)user_param->size;
+	PrintDatas[curr_print_num].iters = num_of_calculated_iters;
+	PrintDatas[curr_print_num].bw_peak = (double)peak_up/peak_down;
+	PrintDatas[curr_print_num].bw_avg = bw_avg;
+	PrintDatas[curr_print_num].msgRate_avg = msgRate_avg;
+	PrintDatas[curr_print_num].bw_avg_p1 = bw_avg_p1;
+	PrintDatas[curr_print_num].msgRate_avg_p1 = msgRate_avg_p1;
+	PrintDatas[curr_print_num].bw_avg_p2 = bw_avg_p2;
+	PrintDatas[curr_print_num].msgRate_avg_p2 = msgRate_avg_p2;
+	PrintDatas[curr_print_num].sl = user_param->sl;
+	user_param->TmpPrint++;
 
 	if (!user_param->duplex || (user_param->verb == SEND && user_param->test_type == DURATION)
 			|| user_param->test_method == RUN_INFINITELY || user_param->connection_type == RawEth)
-		print_full_bw_report(user_param, my_bw_rep, NULL);
-
+			{
+				if(user_param->TmpPrint == user_param->PrintCell)
+				{
+					for (int i = 0; i < user_param->PrintCell; i++){
+						print_full_bw_report(user_param, &PrintDatas[i], NULL);
+					}
+					user_param->TmpPrint = 0;
+				}
+			}
 	if (free_my_bw_rep == 1) {
 		free(my_bw_rep);
 	}
